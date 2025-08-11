@@ -9,6 +9,7 @@ import (
 
 func main() {
 	fmt.Println("Hello world!!!")
+
 	bot, err := tg.NewBotAPI("______")
 	if err != nil {
 		log.Fatal(err)
