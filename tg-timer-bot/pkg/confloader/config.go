@@ -102,7 +102,7 @@ func UpdateOrCreateConfig(path string, i IntervalFoodTime) error {
 // It return true if a file is exist and false if not
 func IsExisttUserCustomConfig(chatId int) bool {
 	strChatId := strconv.Itoa(chatId)
-	path := fmt.Sprint(strChatId, JSON_NAME)
+	path := strChatId + JSON_NAME
 	return checkPath(path)
 }
 
