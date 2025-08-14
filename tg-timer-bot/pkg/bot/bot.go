@@ -8,15 +8,18 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// UserState is necessary structure that we use to
+// check that a user is submitting data.
 type UserState struct {
 	WaitingForInput bool
 	FoodType        string
 }
 
+// Bot is struct we use to work with telegram api
 type Bot struct {
-	api       *tgbotapi.BotAPI
-	userState map[int64]*UserState
-	logger    *slog.Logger
+	api       *tgbotapi.BotAPI     // api
+	userState map[int64]*UserState // check that a user is submitting data.
+	logger    *slog.Logger         // logging errors
 }
 
 // NewBot is constructor that return a Bot struct
@@ -31,6 +34,7 @@ func NewBot(token string, logger *slog.Logger) (*Bot, error) {
 		return nil, errors.New("error no logger")
 	}
 
+	// create new bot api
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, fmt.Errorf("error creating a telegram bot api: %w", err)
