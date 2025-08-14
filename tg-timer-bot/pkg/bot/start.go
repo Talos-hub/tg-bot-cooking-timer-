@@ -29,8 +29,38 @@ func (b *bot) Start() {
 
 		// handle command
 		switch update.Message.Command() {
-		case START, HELP:
-			msg.Text = ``
+		case START, HELP: // hanlde start or help command
+			msg.Text = TEXT_HELP
+		// ------------------------------------
+		case SETTINGS: // setup settings
+			msg.Text = TEXT_SETTINGS
+		// ------------------------------------
+		case MEAT: // setup settings for meat
+			msg.Text = TEXT_MEAT
+			// change user state
+			b.userState[chatID] = &UserState{
+				WaitingForInput: true,
+				FoodType:        "meat",
+			}
+		// --------------------------------------
+		case EGG: // setup settings for egg
+			msg.Text = TEXT_EGG
+			// change user state
+			b.userState[chatID] = &UserState{
+				WaitingForInput: true,
+				FoodType:        "egg",
+			}
+		// --------------------------------------------
+		case START_TIMER: // start timer
+			// TODO
+		// --------------------------------------------
+		default:
+			msg.Text = TEXT_DEFAULt
+		}
+
+		// send  message to user
+		if _, err := b.api.Send(msg); err != nil {
+			b.logger.Error("faild to send message", "error", err)
 		}
 
 	}
