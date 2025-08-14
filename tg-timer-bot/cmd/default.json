@@ -1,0 +1,12 @@
+{
+ "meat": {
+  "second": 0,
+  "minute": 20,
+  "hours": 0
+ },
+ "egg": {
+  "second": 0,
+  "minute": 8,
+  "hours": 0
+ }
+}

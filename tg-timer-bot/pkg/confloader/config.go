@@ -35,26 +35,6 @@ type IntervalFoodTime struct {
 	Egg  IntervalTime `json:"egg"`
 }
 
-// UpdateTimeConfig update or create new time configuration.
-func UpdateTimeConfig(i IntervalFoodTime, path string) error {
-	file, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		return fmt.Errorf("error open or creating the file <<%s>>, err: %w", path, err)
-	}
-	defer file.Close()
-
-	encdoer := json.NewEncoder(file)
-	// for readadbility
-	encdoer.SetIndent("", " ")
-
-	err = encdoer.Encode(i)
-	if err != nil {
-		return fmt.Errorf("error endcoding intervaltime: %w", err)
-	}
-
-	return nil
-}
-
 // defultInterval is function that return a default settings for config.
 // you should use it when you can't load or create a config.
 func defaultInterval() *IntervalFoodTime {
@@ -80,7 +60,7 @@ func defaultInterval() *IntervalFoodTime {
 }
 
 // UserSetUp set up a custom user config
-func UserSetUp(path string, i IntervalFoodTime) error {
+func UpdateOrCreateConfig(path string, i IntervalFoodTime) error {
 	// validation path
 	if len(path) == 0 {
 		return fmt.Errorf("error, the path: <<%s>> less than zero", path)
@@ -95,15 +75,16 @@ func UserSetUp(path string, i IntervalFoodTime) error {
 	// validation path
 	// we checking the [:lenpath-lenJs] because we cut off the path
 	// and checking the json extention
-	if b := strings.Contains(path[:lenPath-lenJs], js); !b {
+	if b := strings.Contains(path[lenPath-lenJs:], js); !b {
 		return errors.New("error, this isn't json file")
 	}
 
 	// open file
-	file, err := os.Create(path)
+	file, err := os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
-		return fmt.Errorf("error creating the file <<%s>>, err: %w", path, err)
+		return fmt.Errorf("error open or creating the file <<%s>>, err: %w", path, err)
 	}
+	defer file.Close()
 
 	en := json.NewEncoder(file)
 	// for readability
@@ -140,9 +121,11 @@ func checkPath(path string) bool {
 // LoadIntreval read a ItervalFoodTime and return it.
 // It's necessery in order to make a Config struct
 func loadInterval() (*IntervalFoodTime, error) {
+	// check that the default config is exist if not
+	// then we create new config
 	if p := checkPath(DEFAULT_PATH); !p {
 		i := defaultInterval()
-		UpdateTimeConfig(*i, DEFAULT_PATH)
+		UpdateOrCreateConfig(DEFAULT_PATH, *i)
 		return i, nil
 	}
 
@@ -171,7 +154,6 @@ func loadInterval() (*IntervalFoodTime, error) {
 	}
 
 	return &i, nil
-
 }
 
 // NewConfig is constructor

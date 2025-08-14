@@ -1,21 +1,47 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"log/slog"
+	"os"
 
+	"github.com/joho/godotenv"
+
+	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
 	tg "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
-func main() {
-	fmt.Println("Hello world!!!")
+func setupLogger() *slog.Logger {
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}))
 
-	bot, err := tg.NewBotAPI("______")
+	return logger
+
+}
+
+func main() {
+	// load env
+	err := godotenv.Load()
+	if err != nil {
+		slog.Warn("env are not found")
+		os.Exit(1)
+	}
+
+	logger := setupLogger()
+	c, err := conf.LoadConfig(logger)
+	if err != nil {
+		logger.Error(err.Error())
+		os.Exit(1)
+	}
+
+	// create newBotApi
+	bot, err := tg.NewBotAPI(c.Token)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	bot.Debug = true
+	bot.Debug = false
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
 	u := tg.NewUpdate(0)
@@ -29,10 +55,6 @@ func main() {
 			continue
 		}
 
-		if !update.Message.IsCommand() {
-			continue
-		}
-
 		msg := tg.NewMessage(update.Message.Chat.ID, "")
 
 		switch update.Message.Command() {
@@ -43,6 +65,24 @@ func main() {
 			if _, err := bot.Send(msg); err != nil {
 				log.Fatal(err)
 			}
+		case "set":
+			msg.Text = `Вы можете устоновить пользователские настройки таймера.
+			выберите тип еды, Мясо: /meat, Яйцо: /egg `
+			if _, err := bot.Send(msg); err != nil {
+				log.Fatal(err)
+			}
+
+		case "meat":
+			var data string = `"meat":{
+		    "second": 0,
+		    "minute": 20,
+ 		    "hours": 0
+            },`
+			msg.Text = "Пришлите данные форматом: " + data
+			if _, err := bot.Send(msg); err != nil {
+				log.Fatal(err)
+			}
+
 		default:
 			msg.Text = "На заморском я не понимаю, пиши нормально шебень"
 			if _, err := bot.Send(msg); err != nil {
