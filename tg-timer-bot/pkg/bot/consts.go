@@ -5,7 +5,7 @@ const (
 	HELP        = "help"
 	MEAT        = "meat"
 	EGG         = "egg"
-	SETTINGS    = "settings"
+	SETTINGS    = "set"
 	START_TIMER = "start_timer"
 	START       = "start"
 )
@@ -15,9 +15,7 @@ const (
 	TEXT_HELP = `Привет! Я бот-таймер для приготовления еды.
 Доступные команды:
 /set - установить таймер
-/meat - установить время для мяса
-/egg - установить время для яиц
-/timer - запустить таймер`
+/start_timer - запустить таймер`
 
 	TEXT_SETTINGS = `Вы можете установить пользовательские настройки таймера.
 Выберите тип еды:
