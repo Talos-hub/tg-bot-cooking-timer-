@@ -84,9 +84,9 @@ func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 
 // IsExsitUserCustomConfig check if config is exist.
 // It return true if a file is exist and false if not
-func IsExisttUserConfig(chatId int) bool {
+func IsExisttUserConfig(chatId int, typeFood string) bool {
 	strChatId := strconv.Itoa(chatId)
-	path := strChatId + consts.JSON_NAME
+	path := strChatId + typeFood + consts.JSON_NAME
 	return checkPath(path)
 }
 

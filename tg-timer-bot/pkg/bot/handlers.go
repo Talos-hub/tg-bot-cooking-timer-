@@ -74,3 +74,7 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 		b.logger.Error("faild to send message", "error", err)
 	}
 }
+
+func Show(chatID int64) string {
+	return ""
+}
