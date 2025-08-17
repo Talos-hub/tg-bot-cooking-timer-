@@ -4,10 +4,13 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 )
 
 const NAME_ENV = "TOKEN"
 
+// LoadConfig is function that we should use to get configuration
 func LoadConfig(logger *slog.Logger) (*Config, error) {
 	botToken := os.Getenv(NAME_ENV)
 
@@ -16,12 +19,12 @@ func LoadConfig(logger *slog.Logger) (*Config, error) {
 		return nil, errors.New("required env variables are messing")
 	}
 
-	i, err := LoadData(DEFAULT_MEAT_PATH, DEFAULT_EGG_PATH)
+	i, err := LoadData(consts.DEFAULT_MEAT_PATH, consts.DEFAULT_EGG_PATH)
 	if err != nil {
 		logger.Error("couldn't getting data", "error", err)
 		i = defaultInterval()
-		UpdateOrCreateConfig(DEFAULT_EGG_PATH, &i.Egg)
-		UpdateOrCreateConfig(DEFAULT_MEAT_PATH, &i.Meat)
+		UpdateOrCreateConfig(consts.DEFAULT_EGG_PATH, &i.Egg)
+		UpdateOrCreateConfig(consts.DEFAULT_MEAT_PATH, &i.Meat)
 	}
 
 	if i == nil {

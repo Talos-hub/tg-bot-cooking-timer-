@@ -1,6 +1,11 @@
 package bot
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	"fmt"
+
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 // Start is launch the bot
 func (b *bot) Start() {
@@ -30,33 +35,36 @@ func (b *bot) Start() {
 
 		// handle command
 		switch update.Message.Command() {
-		case START, HELP: // hanlde start or help command
-			msg.Text = TEXT_HELP
+		case consts.START, consts.HELP: // hanlde start or help command
+			msg.Text = consts.TEXT_HELP
 		// ------------------------------------
-		case SETTINGS: // setup settings
-			msg.Text = TEXT_SETTINGS
+		case consts.SETTINGS: // setup settings
+			msg.Text = consts.TEXT_SETTINGS
 		// ------------------------------------
-		case MEAT: // setup settings for meat
-			msg.Text = TEXT_MEAT
+		case consts.MEAT: // setup settings for meat
+			msg.Text = consts.TEXT_MEAT
 			// change user state
 			b.userState[chatID] = &UserState{
 				WaitingForInput: true,
 				FoodType:        "meat",
 			}
 		// --------------------------------------
-		case EGG: // setup settings for egg
-			msg.Text = TEXT_EGG
+		case consts.EGG: // setup settings for egg
+			msg.Text = consts.TEXT_EGG
 			// change user state
 			b.userState[chatID] = &UserState{
 				WaitingForInput: true,
 				FoodType:        "egg",
 			}
 		// --------------------------------------------
-		case START_TIMER: // start timer
+		case consts.START_TIMER: // start timer
 			// TODO
+		case consts.SHOW:
+
+			msg.Text = fmt.Sprintf("Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n")
 		// --------------------------------------------
 		default:
-			msg.Text = TEXT_DEFAULt
+			msg.Text = consts.TEXT_DEFAULt
 		}
 
 		// send  message to user

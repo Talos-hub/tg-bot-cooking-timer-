@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -51,10 +52,10 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 
 	// check food type and creating or update a config
 	if state.FoodType == "meat" {
-		path := chat + MEAT + conf.JSON_NAME             // create new path for config
+		path := chat + consts.MEAT + consts.JSON_NAME    // create new path for config
 		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
 	} else {
-		path := chat + conf.JSON_NAME                    // create new path for config
+		path := chat + consts.JSON_NAME                  // create new path for config
 		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
 	}
 
@@ -62,7 +63,6 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 	if err != nil {
 		replay := tgbotapi.NewMessage(msg.Chat.ID, "Ошибка!!! Извините за неудобства, в ближайшее время будет исправленно.")
 		b.logger.Error("faild creating or saving config", "error", err)
-
 		if _, err := b.api.Send(replay); err != nil {
 			b.logger.Error("faild to send message", "error", err)
 		}

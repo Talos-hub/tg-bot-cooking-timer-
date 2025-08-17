@@ -8,13 +8,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-)
 
-const (
-	JSON_NAME = ".json"
-	//this is paths for default settings
-	DEFAULT_MEAT_PATH = "defaultMeat.json"
-	DEFAULT_EGG_PATH  = "defaultEGG.json"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 )
 
 // Config is configuration struct.
@@ -96,7 +91,7 @@ func validationJsonPath(path string) error {
 	}
 
 	// for readability
-	js := JSON_NAME
+	js := consts.JSON_NAME
 	lenPath := len(path)
 	lenJs := len(js)
 
@@ -114,7 +109,7 @@ func validationJsonPath(path string) error {
 // It return true if a file is exist and false if not
 func IsExisttUserConfig(chatId int) bool {
 	strChatId := strconv.Itoa(chatId)
-	path := strChatId + JSON_NAME
+	path := strChatId + consts.JSON_NAME
 	return checkPath(path)
 }
 

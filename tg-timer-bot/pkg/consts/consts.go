@@ -1,4 +1,4 @@
-package bot
+package consts
 
 // for handle user commands
 const (
@@ -8,6 +8,7 @@ const (
 	SETTINGS    = "set"
 	START_TIMER = "start_timer"
 	START       = "start"
+	SHOW        = "show"
 )
 
 // TEXTS
@@ -15,7 +16,8 @@ const (
 	TEXT_HELP = `Привет! Я бот-таймер для приготовления еды.
 Доступные команды:
 /set - установить таймер
-/start_timer - запустить таймер`
+/start_timer - запустить таймер
+/show - показать текущие настройки`
 
 	TEXT_SETTINGS = `Вы можете установить пользовательские настройки таймера.
 Выберите тип еды:
@@ -28,4 +30,12 @@ const (
 "час минута секунда"
 Например: "0 8 0" для 8 минут`
 	TEXT_DEFAULt = "Я не понимаю эту команду. Напишите /help для списка команд."
+)
+
+// Paths
+const (
+	JSON_NAME = ".json" // name json file
+	//this is paths for default settings
+	DEFAULT_MEAT_PATH = "defaultMeat.json" // default path for settings meat
+	DEFAULT_EGG_PATH  = "defaultEGG.json"  // default path for settings egg
 )
