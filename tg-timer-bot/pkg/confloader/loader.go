@@ -20,6 +20,8 @@ func LoadConfig(logger *slog.Logger) (*Config, error) {
 	if err != nil {
 		logger.Error("couldn't getting data", "error", err)
 		i = defaultInterval()
+		UpdateOrCreateConfig(DEFAULT_EGG_PATH, &i.Egg)
+		UpdateOrCreateConfig(DEFAULT_MEAT_PATH, &i.Meat)
 	}
 
 	if i == nil {
