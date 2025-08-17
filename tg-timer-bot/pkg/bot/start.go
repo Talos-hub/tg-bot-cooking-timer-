@@ -24,11 +24,7 @@ func (b *bot) Start() {
 		if state, exist := b.userState[chatID]; exist && state.WaitingForInput {
 			b.handleUserInput(update.Message, state)
 			delete(b.userState, chatID)
-			replay := tgbotapi.NewMessage(chatID, "Настройки успешно сохранены")
 
-			if _, err := b.api.Send(replay); err != nil {
-				b.logger.Error("faild to send message", "error", err)
-			}
 			continue
 		}
 

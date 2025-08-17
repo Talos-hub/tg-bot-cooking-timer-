@@ -7,11 +7,14 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
-	JSON_NAME    = ".json"
-	DEFAULT_PATH = "default.json" // this is path for default settings
+	JSON_NAME = ".json"
+	//this is paths for default settings
+	DEFAULT_MEAT_PATH = "defaultMeat.json"
+	DEFAULT_EGG_PATH  = "defaultEGG.json"
 )
 
 // Config is configuration struct.
@@ -60,23 +63,10 @@ func defaultInterval() *IntervalFoodTime {
 }
 
 // UserSetUp set up a custom user config
-func UpdateOrCreateConfig(path string, i IntervalFoodTime) error {
+func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 	// validation path
-	if len(path) == 0 {
-		return fmt.Errorf("error, the path: <<%s>> less than zero", path)
-	}
-
-	// for readability
-	js := JSON_NAME
-
-	lenPath := len(path)
-	lenJs := len(js)
-
-	// validation path
-	// we checking the [:lenpath-lenJs] because we cut off the path
-	// and checking the json extention
-	if b := strings.Contains(path[lenPath-lenJs:], js); !b {
-		return errors.New("error, this isn't json file")
+	if err := validationJsonPath(path); err != nil {
+		return err
 	}
 
 	// open file
@@ -98,9 +88,31 @@ func UpdateOrCreateConfig(path string, i IntervalFoodTime) error {
 	return nil
 }
 
+// ValudationJsonPath is validate that a path is correct and a file is json
+func validationJsonPath(path string) error {
+
+	if len(path) == 0 {
+		return fmt.Errorf("error, the path: <<%s>> less than zero", path)
+	}
+
+	// for readability
+	js := JSON_NAME
+	lenPath := len(path)
+	lenJs := len(js)
+
+	// validation path
+	// we checking the [:lenpath-lenJs] because we cut off the path
+	// and checking the json extention
+	if b := strings.Contains(path[lenPath-lenJs:], js); !b {
+		return errors.New("error, this isn't json file")
+	}
+
+	return nil
+}
+
 // IsExsitUserCustomConfig check if config is exist.
 // It return true if a file is exist and false if not
-func IsExisttUserCustomConfig(chatId int) bool {
+func IsExisttUserConfig(chatId int) bool {
 	strChatId := strconv.Itoa(chatId)
 	path := strChatId + JSON_NAME
 	return checkPath(path)
@@ -118,42 +130,87 @@ func checkPath(path string) bool {
 	return true
 }
 
-// LoadIntreval read a ItervalFoodTime and return it.
-// It's necessery in order to make a Config struct
-func loadInterval() (*IntervalFoodTime, error) {
-	// check that the default config is exist if not
-	// then we create new config
-	if p := checkPath(DEFAULT_PATH); !p {
-		i := defaultInterval()
-		UpdateOrCreateConfig(DEFAULT_PATH, *i)
-		return i, nil
+// LoadData load json data and return pointer on IntervalFoodTime.
+// first and second path should be correct format either like name + .json or like ChatID + TypeFood + .json
+func LoadData(meatPath, eggPath string) (*IntervalFoodTime, error) {
+	err1 := validationJsonPath(meatPath)
+	err2 := validationJsonPath(eggPath)
+
+	if err1 != nil || err2 != nil {
+		return nil, fmt.Errorf("error these files or paths aren't correct: %w, %w", err1, err2)
+	}
+	// open files
+	file1, err1 := os.Open(meatPath)
+	file2, err2 := os.Open(eggPath)
+
+	// check errors
+	if err1 != nil || err2 != nil {
+		return nil, fmt.Errorf("error open these files: %w, %w", err1, err2)
 	}
 
-	// for readability
-	path := DEFAULT_PATH
-	var i IntervalFoodTime
+	//======================difficult to read=========================
 
-	// open a file
-	file, err := os.Open(path)
+	w := sync.WaitGroup{}
+	// for first file
+	timeChan := make(chan IntervalTime)
+	errChan := make(chan error)
+	// for second file
+	timeChan2 := make(chan IntervalTime)
+	errChan2 := make(chan error)
+
+	// start
+
+	w.Add(2)
+	go loadIntervalTime(file1, errChan, timeChan, &w)
+	go loadIntervalTime(file2, errChan2, timeChan2, &w)
+
+	// wait while all goroutines is done
+	w.Wait()
+	// get errors
+	err1 = <-errChan
+	err2 = <-errChan2
+
+	//close channels
+	defer func() {
+		close(errChan)
+		close(errChan2)
+		close(timeChan)
+		close(timeChan2)
+	}()
+
+	if err1 != nil || err2 != nil {
+		return nil, fmt.Errorf("error read data: %w, %w", err1, err2)
+	}
+
+	meat := <-timeChan
+	egg := <-timeChan2
+	//==========================================================================
+
+	return &IntervalFoodTime{
+		Meat: meat,
+		Egg:  egg,
+	}, nil
+
+}
+
+// loadIntervalTime is function that read a json data form a file and send it to timeChan,
+// if it can't read a data so it send an error to errChan and we have to handle the error.
+// Also the function close a file when read is done
+func loadIntervalTime(r *os.File, errChan chan error, timeChan chan IntervalTime, w *sync.WaitGroup) {
+	defer r.Close()
+	decoder := json.NewDecoder(r)
+
+	var interval IntervalTime
+
+	// if a err is exist so we send the error to a errChan and up level we have to handle it
+	err := decoder.Decode(&interval)
 	if err != nil {
-		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("the file <<%s>>, is not exist, err: %w", path, err)
-		}
-		if os.IsPermission(err) {
-			return nil, fmt.Errorf("error, permission denied, err: %w", err)
-		}
-		return nil, fmt.Errorf("error open the file <<%s>>, err: %w", path, err)
+		errChan <- fmt.Errorf("error decoding: %w", err)
+		return
 	}
-
-	// new decoder
-	d := json.NewDecoder(file)
-
-	err = d.Decode(&i)
-	if err != nil {
-		return nil, fmt.Errorf("error decoding: %w", err)
-	}
-
-	return &i, nil
+	// send data to a chan
+	timeChan <- interval
+	w.Done()
 }
 
 // NewConfig is constructor

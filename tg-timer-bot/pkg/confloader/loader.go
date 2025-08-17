@@ -16,7 +16,7 @@ func LoadConfig(logger *slog.Logger) (*Config, error) {
 		return nil, errors.New("required env variables are messing")
 	}
 
-	i, err := loadInterval()
+	i, err := LoadData(DEFAULT_MEAT_PATH, DEFAULT_EGG_PATH)
 	if err != nil {
 		logger.Error("error, couldn't getting data")
 

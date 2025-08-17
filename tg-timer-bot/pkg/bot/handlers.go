@@ -45,21 +45,18 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 		Second: second,
 	}
 
-	config := &conf.IntervalFoodTime{}
-
-	// check food type
-	if state.FoodType == "meat" {
-		config.Meat = interval
-	} else {
-		config.Egg = interval
-	}
-
 	// convert int64 to string
 	chat := strconv.FormatInt(msg.Chat.ID, 10)
+	var err error
 
-	// create new path for config
-	path := chat + conf.JSON_NAME
-	err := conf.UpdateOrCreateConfig(path, *config) // creating or update config
+	// check food type and creating or update a config
+	if state.FoodType == "meat" {
+		path := chat + MEAT + conf.JSON_NAME             // create new path for config
+		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
+	} else {
+		path := chat + conf.JSON_NAME                    // create new path for config
+		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
+	}
 
 	// check err >
 	if err != nil {
@@ -71,4 +68,9 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 		}
 	}
 	// check < err
+
+	replay := tgbotapi.NewMessage(msg.Chat.ID, "Найстройки сохранены успешно")
+	if _, err := b.api.Send(replay); err != nil {
+		b.logger.Error("faild to send message", "error", err)
+	}
 }
