@@ -19,8 +19,11 @@ func LoadConfig(logger *slog.Logger) (*Config, error) {
 	i, err := LoadData(DEFAULT_MEAT_PATH, DEFAULT_EGG_PATH)
 	if err != nil {
 		logger.Error("error, couldn't getting data")
+		i = defaultInterval()
+	}
 
-		return nil, err
+	if i != nil {
+		return nil, errors.New("error, data is empty")
 	}
 
 	config := NewConfig(botToken, i)
