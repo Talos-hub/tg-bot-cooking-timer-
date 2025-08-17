@@ -2,14 +2,13 @@ package confloader
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/validation"
 )
 
 // Config is configuration struct.
@@ -60,7 +59,7 @@ func defaultInterval() *IntervalFoodTime {
 // UserSetUp set up a custom user config
 func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 	// validation path
-	if err := validationJsonPath(path); err != nil {
+	if err := validation.ValidationJsonPath(path); err != nil {
 		return err
 	}
 
@@ -78,28 +77,6 @@ func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 	err = en.Encode(i)
 	if err != nil {
 		return fmt.Errorf("error encoding: %w", err)
-	}
-
-	return nil
-}
-
-// ValudationJsonPath is validate that a path is correct and a file is json
-func validationJsonPath(path string) error {
-
-	if len(path) == 0 {
-		return fmt.Errorf("error, the path: <<%s>> less than zero", path)
-	}
-
-	// for readability
-	js := consts.JSON_NAME
-	lenPath := len(path)
-	lenJs := len(js)
-
-	// validation path
-	// we checking the [:lenpath-lenJs] because we cut off the path
-	// and checking the json extention
-	if b := strings.Contains(path[lenPath-lenJs:], js); !b {
-		return errors.New("error, this isn't json file")
 	}
 
 	return nil
@@ -128,8 +105,8 @@ func checkPath(path string) bool {
 // LoadData load json data and return pointer on IntervalFoodTime.
 // first and second path should be correct format either like name + .json or like ChatID + TypeFood + .json
 func LoadData(meatPath, eggPath string) (*IntervalFoodTime, error) {
-	err1 := validationJsonPath(meatPath)
-	err2 := validationJsonPath(eggPath)
+	err1 := validation.ValidationJsonPath(meatPath)
+	err2 := validation.ValidationJsonPath(eggPath)
 
 	if err1 != nil || err2 != nil {
 		return nil, fmt.Errorf("error these files or paths aren't correct: %w, %w", err1, err2)
