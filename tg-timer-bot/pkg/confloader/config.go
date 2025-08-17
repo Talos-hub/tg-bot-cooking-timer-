@@ -164,11 +164,15 @@ func LoadData(meatPath, eggPath string) (*IntervalFoodTime, error) {
 	go loadIntervalTime(file1, errChan, timeChan, &w)
 	go loadIntervalTime(file2, errChan2, timeChan2, &w)
 
-	// wait while all goroutines is done
-	w.Wait()
-	// get errors
+	// gets errors
 	err1 = <-errChan
 	err2 = <-errChan2
+	// gets interval
+	meat := <-timeChan
+	egg := <-timeChan2
+
+	// wait while all goroutines is done
+	w.Wait()
 
 	//close channels
 	defer func() {
@@ -182,8 +186,6 @@ func LoadData(meatPath, eggPath string) (*IntervalFoodTime, error) {
 		return nil, fmt.Errorf("error read data: %w, %w", err1, err2)
 	}
 
-	meat := <-timeChan
-	egg := <-timeChan2
 	//==========================================================================
 
 	return &IntervalFoodTime{
@@ -207,6 +209,8 @@ func loadIntervalTime(r *os.File, errChan chan error, timeChan chan IntervalTime
 	if err != nil {
 		errChan <- fmt.Errorf("error decoding: %w", err)
 		return
+	} else {
+		errChan <- nil
 	}
 	// send data to a chan
 	timeChan <- interval
