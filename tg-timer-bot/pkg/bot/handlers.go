@@ -7,6 +7,7 @@ import (
 
 	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/paths"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -76,23 +77,41 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 	}
 }
 
-func Show(chatID int64, defaultSettings *conf.IntervalFoodTime) string {
+// ShowSettings retruns a string with data about current settings
+func ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime) (string, error) {
 	ok := conf.IsExisttUserConfig(int(chatID), consts.MEAT)
 	ok2 := conf.IsExisttUserConfig(int(chatID), consts.EGG)
 
 	msg := ""
 	// default settings
 	if !ok || !ok2 {
+		// update msg and then returns it
 		msg = fmt.Sprintf(
 			"Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n",
 			defaultSettings.Meat.Hours, defaultSettings.Meat.Minute, defaultSettings.Meat.Second,
 			defaultSettings.Egg.Hours, defaultSettings.Egg.Minute, defaultSettings.Egg.Second,
 		)
-		return msg // after don't forget remove it
-	} else {
+		return msg, nil // after don't forget remove it
+	} else { // custom settings
+		meat, err1 := paths.CreateNewPath(chatID, "meat")
+		egg, err2 := paths.CreateNewPath(chatID, "egg")
 
+		if err1 != nil || err2 != nil {
+			return "", fmt.Errorf("error showing, %w, %w", err1, err2)
+		}
+
+		data, err := conf.LoadData(meat, egg)
+		if err != nil {
+			return "", fmt.Errorf("error showing, %w", err)
+		}
+		// update msg and then retruns it
+		msg = fmt.Sprintf(
+			"Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n",
+			data.Meat.Hours, data.Meat.Minute, data.Meat.Second,
+			data.Egg.Hours, data.Egg.Minute, data.Egg.Second,
+		)
 	}
 
-	// to do
-	return msg
+	// retruns values
+	return msg, nil
 }
