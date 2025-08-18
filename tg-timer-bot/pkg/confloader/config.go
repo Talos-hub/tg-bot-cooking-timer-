@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/paths"
 )
 
@@ -82,12 +83,45 @@ func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 
 // IsExsitUserCustomConfig check if config is exist.
 // It return true if a file is exist and false if not
-func IsExisttUserConfig(chatId int, typeFood string) bool {
+func isExisttUserConfig(chatId int, typeFood string) bool {
 	path, err := paths.CreateNewPath(int64(chatId), typeFood)
 	if err != nil {
 		return false
 	}
 	return checkPath(path)
+}
+
+// IsExsitUserCustomConfig check if two configs are exist.
+// It return true if a file are exist and false if not
+func IsExistUserConfig(chatID int64) bool {
+	wg := sync.WaitGroup{}
+
+	ok1 := make(chan bool)
+	ok2 := make(chan bool)
+
+	// after works close channels
+	defer func() {
+		close(ok1)
+		close(ok2)
+	}()
+
+	f := func(wg *sync.WaitGroup, ok chan bool, typeFood string) {
+		ok <- isExisttUserConfig(int(chatID), typeFood) // start searching path
+		wg.Done()
+	}
+	wg.Add(2)
+	go f(&wg, ok1, consts.MEAT)
+	go f(&wg, ok2, consts.EGG)
+
+	meat := <-ok1
+	egg := <-ok2
+	wg.Wait()
+
+	if !meat || !egg {
+		return false
+	}
+	return true
+
 }
 
 // checkPath is simple function that check a file path

@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
-	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/paths"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -73,12 +72,10 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 
 // ShowSettings retruns a string with data about current settings
 func ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime) (string, error) {
-	ok := conf.IsExisttUserConfig(int(chatID), consts.MEAT)
-	ok2 := conf.IsExisttUserConfig(int(chatID), consts.EGG)
-
+	ok := conf.IsExistUserConfig(chatID)
 	msg := ""
 	// default settings
-	if !ok || !ok2 {
+	if !ok {
 		// update msg and then returns it
 		msg = fmt.Sprintf(
 			"Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n",
