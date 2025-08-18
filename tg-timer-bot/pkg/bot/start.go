@@ -62,6 +62,7 @@ func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
 		// --------------------------------------------
 		case consts.START_TIMER: // start timer
 			msg.Text = consts.TEXT_START_TIMER
+		// --------------------------------------------
 		case consts.SHOW:
 			m, err := b.ShowSettings(chatID, defaultConf)
 			if err != nil {
@@ -71,6 +72,19 @@ func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
 				msg.Text = m
 			}
 		// --------------------------------------------
+		case consts.EGG_TIMER: // egg timer
+			m, err := b.StartTimer(chatID, consts.EGG, *defaultConf)
+			if err != nil {
+				b.logger.Error("error starting timer", "error", err)
+			}
+			msg.Text = m
+		// --------------------------------------------
+		case consts.MEAT_TIMER: // meat timer
+			m, err := b.StartTimer(chatID, consts.MEAT, *defaultConf)
+			if err != nil {
+				b.logger.Error("error startin timer", "error", err)
+			}
+			msg.Text = m
 		default:
 			msg.Text = consts.TEXT_DEFAULt
 		}
