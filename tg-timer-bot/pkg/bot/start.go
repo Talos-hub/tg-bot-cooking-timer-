@@ -1,8 +1,6 @@
 package bot
 
 import (
-	"fmt"
-
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -61,7 +59,6 @@ func (b *bot) Start() {
 			// TODO
 		case consts.SHOW:
 
-			msg.Text = fmt.Sprintf("Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n")
 		// --------------------------------------------
 		default:
 			msg.Text = consts.TEXT_DEFAULt

@@ -4,11 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 	"sync"
 
-	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
-	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/validation"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/paths"
 )
 
 // Config is configuration struct.
@@ -59,7 +57,7 @@ func defaultInterval() *IntervalFoodTime {
 // UserSetUp set up a custom user config
 func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 	// validation path
-	if err := validation.ValidationJsonPath(path); err != nil {
+	if err := paths.ValidationJsonPath(path); err != nil {
 		return err
 	}
 
@@ -85,8 +83,10 @@ func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 // IsExsitUserCustomConfig check if config is exist.
 // It return true if a file is exist and false if not
 func IsExisttUserConfig(chatId int, typeFood string) bool {
-	strChatId := strconv.Itoa(chatId)
-	path := strChatId + typeFood + consts.JSON_NAME
+	path, err := paths.CreateNewPath(int64(chatId), typeFood)
+	if err != nil {
+		return false
+	}
 	return checkPath(path)
 }
 
@@ -105,8 +105,8 @@ func checkPath(path string) bool {
 // LoadData load json data and return pointer on IntervalFoodTime.
 // first and second path should be correct format either like name + .json or like ChatID + TypeFood + .json
 func LoadData(meatPath, eggPath string) (*IntervalFoodTime, error) {
-	err1 := validation.ValidationJsonPath(meatPath)
-	err2 := validation.ValidationJsonPath(eggPath)
+	err1 := paths.ValidationJsonPath(meatPath)
+	err2 := paths.ValidationJsonPath(eggPath)
 
 	if err1 != nil || err2 != nil {
 		return nil, fmt.Errorf("error these files or paths aren't correct: %w, %w", err1, err2)

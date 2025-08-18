@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -75,6 +76,23 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 	}
 }
 
-func Show(chatID int64) string {
-	return ""
+func Show(chatID int64, defaultSettings *conf.IntervalFoodTime) string {
+	ok := conf.IsExisttUserConfig(int(chatID), consts.MEAT)
+	ok2 := conf.IsExisttUserConfig(int(chatID), consts.EGG)
+
+	msg := ""
+	// default settings
+	if !ok || !ok2 {
+		msg = fmt.Sprintf(
+			"Настройки для Мяса: Часы: %d, Минуты: %d, Секунды: %d\nНастройки для Яйца: Часы: %d, Минуты: %d, Секунды: %d\n",
+			defaultSettings.Meat.Hours, defaultSettings.Meat.Minute, defaultSettings.Meat.Second,
+			defaultSettings.Egg.Hours, defaultSettings.Egg.Minute, defaultSettings.Egg.Second,
+		)
+		return msg // after don't forget remove it
+	} else {
+
+	}
+
+	// to do
+	return msg
 }
