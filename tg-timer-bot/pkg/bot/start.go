@@ -33,7 +33,6 @@ func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
 		if state, exist := b.userState[chatID]; exist && state.WaitingForInput {
 			b.handleUserInput(update.Message, state)
 			delete(b.userState, chatID)
-
 			continue
 		}
 
@@ -50,7 +49,7 @@ func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
 			// change user state
 			b.userState[chatID] = &UserState{
 				WaitingForInput: true,
-				FoodType:        "meat",
+				FoodType:        consts.MEAT,
 			}
 		// --------------------------------------
 		case consts.EGG: // setup settings for egg
@@ -58,13 +57,13 @@ func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
 			// change user state
 			b.userState[chatID] = &UserState{
 				WaitingForInput: true,
-				FoodType:        "egg",
+				FoodType:        consts.EGG,
 			}
 		// --------------------------------------------
 		case consts.START_TIMER: // start timer
-			// TODO
+			msg.Text = consts.TEXT_START_TIMER
 		case consts.SHOW:
-			m, err := ShowSettings(chatID, defaultConf)
+			m, err := b.ShowSettings(chatID, defaultConf)
 			if err != nil {
 				b.logger.Error("error showing settings", "error", err)
 				msg.Text = "Извените за неудобства, функция не временно не работает"

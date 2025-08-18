@@ -83,7 +83,7 @@ func UpdateOrCreateConfig(path string, i *IntervalTime) error {
 
 // IsExsitUserCustomConfig check if config is exist.
 // It return true if a file is exist and false if not
-func isExisttUserConfig(chatId int, typeFood string) bool {
+func CheckUserConfigFile(chatId int, typeFood string) bool {
 	path, err := paths.CreateNewPath(int64(chatId), typeFood)
 	if err != nil {
 		return false
@@ -93,7 +93,7 @@ func isExisttUserConfig(chatId int, typeFood string) bool {
 
 // IsExsitUserCustomConfig check if two configs are exist.
 // It return true if a file are exist and false if not
-func IsExistUserConfig(chatID int64) bool {
+func IsExistUserConfigs(chatID int64) bool {
 	wg := sync.WaitGroup{}
 
 	ok1 := make(chan bool)
@@ -106,7 +106,7 @@ func IsExistUserConfig(chatID int64) bool {
 	}()
 
 	f := func(wg *sync.WaitGroup, ok chan bool, typeFood string) {
-		ok <- isExisttUserConfig(int(chatID), typeFood) // start searching path
+		ok <- CheckUserConfigFile(int(chatID), typeFood) // start searching path
 		wg.Done()
 	}
 	wg.Add(2)

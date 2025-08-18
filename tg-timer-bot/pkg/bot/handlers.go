@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
+	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/paths"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -47,7 +49,7 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 		Second: second,
 	}
 
-	// check food type and creating or update a config
+	// creating or update a config
 	path, err := paths.CreateNewPath(msg.Chat.ID, state.FoodType)
 	if err != nil {
 		b.logger.Error("error handling user input", "error", err)
@@ -71,8 +73,8 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 }
 
 // ShowSettings retruns a string with data about current settings
-func ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime) (string, error) {
-	ok := conf.IsExistUserConfig(chatID)
+func (b *bot) ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime) (string, error) {
+	ok := conf.IsExistUserConfigs(chatID)
 	msg := ""
 	// default settings
 	if !ok {
@@ -105,4 +107,53 @@ func ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime) (string,
 
 	// retruns values
 	return msg, nil
+}
+
+// StarTimer is fucntion that implement logic of a timer
+func (b *bot) StartTimer(chatID int64, typeFood string, config conf.IntervalFoodTime) (string, error) {
+	ok := conf.IsExistUserConfigs(chatID)
+
+	// If custom confgis are exist then defaultConfgis = CastomConfigs
+	if ok {
+		meat, err := paths.CreateNewPath(chatID, consts.MEAT)
+		if err != nil {
+			return "", fmt.Errorf("error starting: %w", err)
+		}
+		egg, err := paths.CreateNewPath(chatID, consts.EGG)
+		if err != nil {
+			return "", fmt.Errorf("error starting: %w", err)
+		}
+		data, err := conf.LoadData(meat, egg)
+		if err != nil {
+			return "", err
+		}
+		// Now Default = Castom
+		config = *data
+	}
+
+	var duration time.Duration
+
+	// check food type
+	switch typeFood {
+	case consts.MEAT: // meat
+		duration = time.Duration(config.Meat.Hours)*time.Hour + // creating duration
+			time.Duration(config.Meat.Minute)*time.Minute + time.Duration(config.Meat.Second)*time.Second
+	case consts.EGG: // egg
+		duration = time.Duration(config.Egg.Hours)*time.Hour + // creating duration
+			time.Duration(config.Egg.Minute)*time.Minute + time.Duration(config.Egg.Second)*time.Second
+	}
+
+	go func() {
+		time.Sleep(duration)
+		msg := tgbotapi.NewMessage(chatID, "Время приготовления Истекло!!!")
+
+		for i := 0; i < 3; i++ {
+			if _, err := b.api.Send(msg); err != nil {
+				b.logger.Error("faild to send message", "error", err)
+			}
+		}
+
+	}()
+
+	return "Таймер зампушен на " + duration.String(), nil
 }

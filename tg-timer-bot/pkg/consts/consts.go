@@ -9,6 +9,8 @@ const (
 	START_TIMER = "start_timer"
 	START       = "start"
 	SHOW        = "show"
+	EGG_TIMER   = "egg_timer"
+	MEAT_TIMER  = "meat_timer"
 )
 
 // TEXTS
@@ -29,7 +31,8 @@ const (
 	TEXT_EGG = `Введите время для яиц в формате:
 "час минута секунда"
 Например: "0 8 0" для 8 минут`
-	TEXT_DEFAULt = "Я не понимаю эту команду. Напишите /help для списка команд."
+	TEXT_DEFAULt     = "Я не понимаю эту команду. Напишите /help для списка команд."
+	TEXT_START_TIMER = "Выберите тип таймера.\nЯйцо: /egg_timer\nМясо: /meat_timer"
 )
 
 // Paths

@@ -13,6 +13,7 @@ import (
 type UserState struct {
 	WaitingForInput bool
 	FoodType        string
+	OperationType   string
 }
 
 // Bot is struct we use to work with telegram api
