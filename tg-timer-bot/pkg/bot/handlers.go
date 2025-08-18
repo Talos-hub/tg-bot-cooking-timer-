@@ -48,18 +48,12 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 		Second: second,
 	}
 
-	// convert int64 to string
-	chat := strconv.FormatInt(msg.Chat.ID, 10)
-	var err error
-
 	// check food type and creating or update a config
-	if state.FoodType == "meat" {
-		path := chat + consts.MEAT + consts.JSON_NAME    // create new path for config
-		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
-	} else {
-		path := chat + consts.JSON_NAME                  // create new path for config
-		err = conf.UpdateOrCreateConfig(path, &interval) // creating or update config
+	path, err := paths.CreateNewPath(msg.Chat.ID, state.FoodType)
+	if err != nil {
+		b.logger.Error("error handling user input", "error", err)
 	}
+	err = conf.UpdateOrCreateConfig(path, &interval)
 
 	// check err >
 	if err != nil {

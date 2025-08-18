@@ -1,12 +1,18 @@
 package bot
 
 import (
+	conf "github.com/Talos-hub/tg-bot-cooking-timer-/pkg/confloader"
 	"github.com/Talos-hub/tg-bot-cooking-timer-/pkg/consts"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 // Start is launch the bot
-func (b *bot) Start() {
+func (b *bot) Start(defaultConf *conf.IntervalFoodTime) {
+	if defaultConf == nil {
+		b.logger.Error("there is no default config")
+		return
+	}
+
 	b.logger.Info("Authorized on account", "username", b.api.Self.UserName)
 
 	u := tgbotapi.NewUpdate(0)
@@ -58,7 +64,13 @@ func (b *bot) Start() {
 		case consts.START_TIMER: // start timer
 			// TODO
 		case consts.SHOW:
-
+			m, err := ShowSettings(chatID, defaultConf)
+			if err != nil {
+				b.logger.Error("error showing settings", "error", err)
+				msg.Text = "Извените за неудобства, функция не временно не работает"
+			} else {
+				msg.Text = m
+			}
 		// --------------------------------------------
 		default:
 			msg.Text = consts.TEXT_DEFAULt

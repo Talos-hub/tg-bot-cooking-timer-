@@ -40,6 +40,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	b.Start()
+	b.Start(&c.Food)
 
 }
