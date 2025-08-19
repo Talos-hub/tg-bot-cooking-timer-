@@ -1,0 +1,14 @@
+# Исключаем всю папку tebot с чувствительными файлами
+tebot/.env
+tebot/*.json
+tebot/configs/*.json
+
+
+tebot/.env
+tebot/config.json
+tebot/credentials.json
+
+# Дополнительные исключения
+tebot/node_modules/
+.DS_Store
+*.log
