@@ -11,11 +11,18 @@ import (
 )
 
 func setupLogger() *slog.Logger {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+	file, err := os.OpenFile("bot.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		// Fallback to stdout
+		return slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level: slog.LevelInfo,
+		}))
+	}
+
+	// Log to file only
+	return slog.New(slog.NewJSONHandler(file, &slog.HandlerOptions{
 		Level: slog.LevelInfo,
 	}))
-
-	return logger
 
 }
 
