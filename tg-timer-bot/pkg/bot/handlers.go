@@ -42,6 +42,16 @@ func (b *bot) handleUserInput(msg *tgbotapi.Message, state *UserState) {
 	}
 	// chech < err
 
+	ok := validationNumbers(hour, minute, second)
+	if !ok {
+		replay := tgbotapi.NewMessage(msg.Chat.ID, "Неверный формат, вы зашли за временные пределы. Часы: 24, Минуты и секунды: 60")
+
+		if _, err := b.api.Send(replay); err != nil {
+			b.logger.Error("faild to send message", "error", err)
+		}
+		return
+	}
+
 	// create interval then put it to IntervalFoodTime
 	interval := conf.IntervalTime{
 		Hours:  hour,
@@ -84,7 +94,7 @@ func (b *bot) ShowSettings(chatID int64, defaultSettings *conf.IntervalFoodTime)
 			defaultSettings.Meat.Hours, defaultSettings.Meat.Minute, defaultSettings.Meat.Second,
 			defaultSettings.Egg.Hours, defaultSettings.Egg.Minute, defaultSettings.Egg.Second,
 		)
-		return msg, nil // after don't forget remove it
+		return msg, nil
 	} else { // custom settings
 		meat, err1 := paths.CreateNewPath(chatID, "meat")
 		egg, err2 := paths.CreateNewPath(chatID, "egg")
@@ -156,4 +166,18 @@ func (b *bot) StartTimer(chatID int64, typeFood string, config conf.IntervalFood
 	}()
 
 	return "Таймер зампушен на " + duration.String(), nil
+}
+
+// validationNumers is simple validation for time
+func validationNumbers(hour, minute, second int) bool {
+	if hour > 24 || hour < 0 {
+		return false
+	}
+	if minute < 0 || minute > 60 {
+		return false
+	}
+	if second < 0 || second > 60 {
+		return false
+	}
+	return true
 }
