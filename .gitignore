@@ -1,14 +1,7 @@
 # Исключаем всю папку tebot с чувствительными файлами
-tebot/.env
-tebot/*.json
-tebot/configs/*.json
+tg-timer-bot/cmd/.env
+tg-timer-bot/cmd/*.json
+tg-timer-bot/.env
 
 
-tebot/.env
-tebot/config.json
-tebot/credentials.json
-
-# Дополнительные исключения
-tebot/node_modules/
-.DS_Store
 *.log
