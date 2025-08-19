@@ -2,6 +2,10 @@
 tg-timer-bot/cmd/.env
 tg-timer-bot/cmd/*.json
 tg-timer-bot/.env
-
+tg-timer-bot/cmd/*.exe
 
 *.log
+*.exe
+*.env
+*.json
+*.txt
